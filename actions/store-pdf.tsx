@@ -1,8 +1,10 @@
 "use server";
 
 import { db } from "@/db/db";
-import { pdfs } from "@/db/schema";
+import { pdfs, users } from "@/db/schema";
 import cloudinary from "@/lib/cloudinary";
+import { auth } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 type CloudinaryResult = {
   secure_url: string;
   display_name: string;
@@ -46,12 +48,20 @@ export default async function storePdfToDb(formData: FormData) {
       )
       .end(buffer);
   });
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+  const userFromDb = await db
+    .select()
+    .from(users)
+    .where(eq(users.clerkId, userId));
 
   await db.insert(pdfs).values({
     fileUrl: result.secure_url,
     title: result.display_name.slice(-4),
-    userId: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    userId: userFromDb[0]?.id,
   });
 
-  return result;
+  return "success";
 }
