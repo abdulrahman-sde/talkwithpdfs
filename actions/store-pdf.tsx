@@ -59,7 +59,7 @@ export default async function storePdfToDb(formData: FormData) {
 
   await db.insert(pdfs).values({
     fileUrl: result.secure_url,
-    title: result.display_name.slice(-4),
+    title: result.display_name.slice(0, -4),
     userId: userFromDb[0]?.id,
   });
 
