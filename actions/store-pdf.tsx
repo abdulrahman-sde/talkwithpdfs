@@ -3,10 +3,11 @@
 import { db } from "@/db/db";
 import { pdfs } from "@/db/schema";
 import cloudinary from "@/lib/cloudinary";
-// type MinimalCloudinaryResult = {
-//   secure_url: string;
-//   display_name: string;
-// };
+type CloudinaryResult = {
+  secure_url: string;
+  display_name: string;
+  [key: string]: any;
+};
 export default async function storePdfToDb(formData: FormData) {
   const file = formData.get("file") as File;
   console.log(file);
@@ -18,7 +19,8 @@ export default async function storePdfToDb(formData: FormData) {
   // Convert File -> Buffer
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
-  const result = await new Promise((resolve, reject) => {
+
+  const result = await new Promise<CloudinaryResult>((resolve, reject) => {
     cloudinary.uploader
       .upload_stream(
         {
@@ -31,7 +33,15 @@ export default async function storePdfToDb(formData: FormData) {
         },
         (error, result) => {
           if (error) reject(error);
-          else resolve(result);
+          else if (result) {
+            resolve({
+              display_name:
+                (result as any).display_name || result.original_filename || "",
+              ...result,
+            } as CloudinaryResult);
+          } else {
+            reject(new Error("No result returned from Cloudinary"));
+          }
         }
       )
       .end(buffer);

@@ -18,7 +18,7 @@ const transitionVariants = {
       filter: "blur(0px)",
       y: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const, // Fix: Explicitly type as const
         bounce: 0.3,
         duration: 1.5,
       },
@@ -59,7 +59,7 @@ export default function Hero() {
                     opacity: 1,
                     y: 0,
                     transition: {
-                      type: "spring",
+                      type: "spring" as const, // Fix: Explicitly type as const
                       bounce: 0.3,
                       duration: 2,
                     },
@@ -68,6 +68,8 @@ export default function Hero() {
               }}
               className="absolute inset-0 -z-20"
             >
+              {/* Fix: Add empty div as children to satisfy the required prop */}
+              <div />
               {/* <Image
                 src="https://ik.imagekit.io/lrigu76hy/tailark/night-background.jpg?updatedAt=1745733451120"
                 alt="background"
