@@ -38,7 +38,7 @@ export const pdfChunks = pgTable("pdf_chunks", {
     .notNull(),
   chunkIndex: integer("chunk_index").notNull(),
   content: text("content").notNull(),
-  embedding: vector("embedding", { dimensions: 1536 }), // adjust to your embedding model
+  embedding: vector("embedding", { dimensions: 768 }), // adjust to your embedding model
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

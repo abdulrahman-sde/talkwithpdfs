@@ -6,8 +6,6 @@ import Footer from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/navbar";
 import { auth } from "@clerk/nextjs/server";
 export default async function Home() {
-  const { sessionClaims } = await auth();
-  console.log(sessionClaims);
   return (
     <div className="bg-background">
       <Navbar />

@@ -6,17 +6,8 @@ import { MultiStepLoader as Loader } from "../ui/multistep-loader";
 import { IconFileTextSpark, IconSquareRoundedX } from "@tabler/icons-react";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import storePdfToDb from "@/actions/store-pdf";
-
-const loadingStates = [
-  { text: "Uploading PDF to cloud" },
-  { text: "Storing file securely" },
-  { text: "Extracting text from PDF" },
-  { text: "Splitting content into chunks" },
-  { text: "Generating vector embeddings" },
-  { text: "Saving vectors to database" },
-  { text: "Preparing chat session" },
-];
+import handlePdfEmbeddings from "@/actions/handlePdfEmbeddings";
+import { loadingStates } from "@/constants/constant";
 
 export function FileUploader() {
   const [files, setFiles] = useState<File[]>([]);
@@ -25,26 +16,16 @@ export function FileUploader() {
 
   const handleFileUpload = async (files: File[]) => {
     setFiles(files); // ✅ only one file stored
-    console.log(files);
   };
-
-  const router = useRouter();
 
   const storePdf = async () => {
     if (files.length === 0) return;
-
-    const formData = new FormData();
-    formData.append("file", files[0]); // ✅ use "file" (singular)
 
     setLoading(true);
     setModalLoading(true);
 
     try {
-      const result = await storePdfToDb(formData);
-      console.log("Uploaded to Cloudinary:", result);
-
-      // later replace with dynamic chat id
-      router.push("/chat/123");
+      await handlePdfEmbeddings(files[0]);
     } catch (err) {
       console.error("Upload failed:", err);
     } finally {
