@@ -15,3 +15,25 @@ export function chunkText(text: string, size = 500, overlap = 50): string[] {
   }
   return chunks.filter((c) => c.trim().length > 0);
 }
+
+export function validatePdf(file: File) {
+  if (!file) {
+    return { valid: false, error: "No file selected" };
+  }
+
+  // Check file type
+  if (file.type !== "application/pdf") {
+    return { valid: false, error: "Only PDF files are allowed" };
+  }
+
+  // Check file size (in bytes)
+  const maxSizeBytes = 1 * 1024 * 1024;
+  if (file.size > maxSizeBytes) {
+    return {
+      valid: false,
+      error: `File size must be less than ${1}MB`,
+    };
+  }
+
+  return { valid: true };
+}

@@ -8,12 +8,13 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import handlePdfEmbeddings from "@/actions/handlePdfEmbeddings";
 import { loadingStates } from "@/constants/constant";
+import { validatePdf } from "@/lib/utils";
 
 export function FileUploader() {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
-
+  const router = useRouter();
   const handleFileUpload = async (files: File[]) => {
     setFiles(files); // ✅ only one file stored
   };
@@ -25,7 +26,17 @@ export function FileUploader() {
     setModalLoading(true);
 
     try {
-      await handlePdfEmbeddings(files[0]);
+      const validation = validatePdf(files[0]);
+      if (!validation.valid) {
+        return console.log(validation.error);
+      }
+      const res = await handlePdfEmbeddings(files[0]);
+      if (!res.success) {
+        return console.log(res.message);
+      }
+      if (res.redirectUrl) {
+        router.push(res.redirectUrl);
+      }
     } catch (err) {
       console.error("Upload failed:", err);
     } finally {

@@ -1,4 +1,3 @@
-// src/lib/inngest/functions/pdf.ts
 import { db } from "@/db/db";
 import { pdfChunks } from "@/db/schema";
 import { embedMany } from "ai";
@@ -13,15 +12,14 @@ export const createEmbeddingsFn = inngest.createFunction(
   async ({ event, step }) => {
     const { pdfId, fileUrl } = event.data;
 
-    // 1. Download the PDF content
+    // Step 1: Download the PDF content
     const pdfResponseBuffer = await step.run("download-pdf-file", async () => {
       const response = await fetch(fileUrl);
       return Buffer.from(await response.arrayBuffer());
     });
 
-    // 2. Parse the PDF and chunk the text
+    // Step 2: Parse the PDF and chunk the text
     const textChunks = await step.run("parse-and-chunk-pdf", async () => {
-      // const pdfBuffer = Buffer.from(await resp.arrayBuffer());
       const result = await pdf(pdfResponseBuffer);
       const extractedText = result.text;
       return chunkText(extractedText, 500, 50);
@@ -31,10 +29,8 @@ export const createEmbeddingsFn = inngest.createFunction(
       throw new Error("Failed to create text chunks from PDF content");
     }
 
-    // 3. Generate embeddings for each chunk
+    // Step 3: Generate embeddings for each chunk
     const { embeddings } = await step.run("generate-embeddings", async () => {
-      // 'embeddings' is an array of embedding objects (number[][]).
-      // It is sorted in the same order as the input values.
       return await embedMany({
         model: google.textEmbedding("text-embedding-004"),
         maxParallelCalls: 2,
@@ -48,7 +44,7 @@ export const createEmbeddingsFn = inngest.createFunction(
       });
     });
 
-    // 4. Prepare and insert embeddings into the database
+    // Step 4: Prepare and insert embeddings into the database
     const embeddingsData = embeddings.map((embedding, index) => ({
       pdfId,
       embedding,

@@ -1,15 +1,26 @@
 "use server";
 
 import { db } from "@/db/db";
-import { conversations } from "@/db/schema";
+import { conversations, messages } from "@/db/schema";
 import storePdfToDb from "@/lib/cloudinary/cloudinary";
 import { inngest } from "@/lib/inngest/inngest";
+import { validatePdf } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export default async function handlePdfEmbeddings(file: File) {
   if (!file) {
-    console.log("File not provided");
+    return {
+      success: false,
+      message: "File Not provided",
+    };
+  }
+  const validation = validatePdf(file);
+  if (!validation.valid) {
+    return {
+      success: false,
+      message: validation.error,
+    };
   }
   const { sessionClaims } = await auth();
   if (!sessionClaims || !sessionClaims.dbUserId) {
@@ -17,36 +28,56 @@ export default async function handlePdfEmbeddings(file: File) {
   }
 
   const userId = String(sessionClaims.dbUserId);
-  /* 
-  -> Save to cloudinary 
-  -> Insert Pdf record in DB  
-  */
-  const { pdfId, title, fileUrl } = await storePdfToDb(file, userId);
-  if (!pdfId) {
-    return "error saving pdf";
+
+  try {
+    /* 
+      -> Save to cloudinary 
+      -> Insert Pdf record in DB  
+    */
+    const { pdfId, title, fileUrl } = await storePdfToDb(file, userId);
+    if (!pdfId) {
+      return {
+        success: false,
+        message: "Error saving pdf to Db",
+      };
+    }
+
+    // Make Conversation record linked to pdf
+    const [conversation] = await db
+      .insert(conversations)
+      .values({
+        pdfId,
+        userId,
+        title,
+      })
+      .returning({ id: conversations.id });
+    if (!conversation.id) {
+      return {
+        success: false,
+        message: "Failed to create conversation record.",
+      };
+    }
+    console.log("Invoking background job");
+    /* 
+    ->Fire and forget Inngest background job invocation to
+    -> generate embedding and store them to pg vector 
+    */
+    inngest.send({
+      name: "pdf/embeddings.create",
+      data: {
+        pdfId,
+        fileUrl,
+      },
+    });
+    return {
+      success: true,
+      redirectUrl: `/chat/${conversation.id}`,
+    };
+  } catch (err) {
+    console.log(err);
+    return {
+      success: false,
+      message: "Something went wrong",
+    };
   }
-  // Make Conversation record linked to pdf
-  const [conversation] = await db
-    .insert(conversations)
-    .values({
-      pdfId,
-      userId,
-      title,
-    })
-    .returning({ id: conversations.id });
-
-  /* 
-  -> Inngest background job invocation to
-  -> generate embedding and store them to pg vector 
-  ->>Fire and forget
-   */
-  await inngest.send({
-    name: "pdf/embeddings.create",
-    data: {
-      pdfId,
-      fileUrl,
-    },
-  });
-
-  redirect(`/chat/${conversation.id}`);
 }
