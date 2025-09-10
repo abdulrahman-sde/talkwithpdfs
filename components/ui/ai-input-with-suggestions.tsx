@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useAutoResizeTextarea } from "@/hooks/use-auto-resize-textarea";
+import { Button } from "./button";
 
 interface ActionItem {
   text: string;
@@ -25,6 +26,7 @@ interface AIInputWithSuggestionsProps {
   maxHeight?: number;
   actions?: ActionItem[];
   className?: string;
+  getAiResponse: (input: string) => void;
 }
 
 const DEFAULT_ACTIONS: ActionItem[] = [
@@ -67,6 +69,7 @@ export function AIInputWithSuggestions({
   maxHeight = 200,
   actions = DEFAULT_ACTIONS,
   className,
+  getAiResponse,
 }: AIInputWithSuggestionsProps) {
   const [inputValue, setInputValue] = useState("");
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
@@ -88,7 +91,7 @@ export function AIInputWithSuggestions({
         <div className="relative border border-black/10 dark:border-white/10 focus-within:border-black/20 dark:focus-within:border-white/20 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03]">
           <div className="flex flex-col">
             <div
-              className="overflow-y-auto"
+              className="overflow-y-auto flex"
               style={{ maxHeight: `${maxHeight}px` }}
             >
               <Textarea
@@ -105,6 +108,15 @@ export function AIInputWithSuggestions({
                   adjustHeight();
                 }}
               />
+
+              <Button
+                className="self-center mr-2 cursor-pointer"
+                onClick={() => {
+                  getAiResponse(inputValue);
+                }}
+              >
+                Send
+              </Button>
             </div>
           </div>
         </div>

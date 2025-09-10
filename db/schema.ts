@@ -7,6 +7,7 @@ import {
   jsonb,
   boolean,
   vector,
+  index,
 } from "drizzle-orm/pg-core";
 
 // -------------------- USERS --------------------
@@ -31,16 +32,25 @@ export const pdfs = pgTable("pdfs", {
 });
 
 // -------------------- PDF CHUNKS (with embeddings) --------------------
-export const pdfChunks = pgTable("pdf_chunks", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  pdfId: uuid("pdf_id")
-    .references(() => pdfs.id, { onDelete: "cascade" })
-    .notNull(),
-  chunkIndex: integer("chunk_index").notNull(),
-  content: text("content").notNull(),
-  embedding: vector("embedding", { dimensions: 768 }), // adjust to your embedding model
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const pdfChunks = pgTable(
+  "pdf_chunks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pdfId: uuid("pdf_id")
+      .references(() => pdfs.id, { onDelete: "cascade" })
+      .notNull(),
+    chunkIndex: integer("chunk_index").notNull(),
+    content: text("content").notNull(),
+    embedding: vector("embedding", { dimensions: 1536 }), // adjust to your embedding model
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    embeddingIndex: index("embeddingIndex").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops")
+    ),
+  })
+);
 
 // -------------------- CONVERSATIONS --------------------
 export const conversations = pgTable("conversations", {

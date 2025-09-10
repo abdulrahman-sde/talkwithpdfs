@@ -21,7 +21,7 @@ import { IconEdit, IconMessage2Search } from "@tabler/icons-react";
 import Link from "next/link";
 
 export function NavMain({
-  items,
+  items = [],
 }: {
   items: {
     title: string;
@@ -51,9 +51,9 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
-            key={item.title}
+            key={item.url}
             asChild
-            defaultOpen={item.isActive}
+            defaultOpen={true}
             className="group/collapsible"
           >
             <SidebarMenuItem>

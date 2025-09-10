@@ -6,7 +6,6 @@ import storePdfToDb from "@/lib/cloudinary/cloudinary";
 import { inngest } from "@/lib/inngest/inngest";
 import { validatePdf } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 
 export default async function handlePdfEmbeddings(file: File) {
   if (!file) {
@@ -48,7 +47,7 @@ export default async function handlePdfEmbeddings(file: File) {
       .values({
         pdfId,
         userId,
-        title,
+        title: "New Conversation",
       })
       .returning({ id: conversations.id });
     if (!conversation.id) {

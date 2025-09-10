@@ -2,6 +2,8 @@
 
 import { AIInputWithSuggestions } from "@/components/ui/ai-input-with-suggestions";
 import { Text, CheckCheck, ArrowDownWideNarrow } from "lucide-react";
+import { useState } from "react";
+import { getRelevantChunks } from "@/actions/getRelevantChunks";
 
 const CUSTOM_ACTIONS = [
   {
@@ -37,13 +39,41 @@ const CUSTOM_ACTIONS = [
 ];
 
 export default function AIInputWithSuggestionsDemo() {
+  const [messages, setMessages] = useState();
+  const conversationId = "d36dd1d2-9f12-4cce-831d-480da764a882";
+
+  const getAiResponse = async (input: string) => {
+    const chunks = await getRelevantChunks(conversationId, input);
+    console.log(chunks);
+    const contentArray = chunks.map((chunk) => chunk.content);
+    const vectorContext = contentArray.join(" ");
+
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // don't forget this!
+      },
+      body: JSON.stringify({
+        prompt: input, // ✅ fixed
+        vectorContext, // ✅ now actual text
+      }),
+    });
+
+    const { text } = await res.json();
+    console.log(text);
+  };
+
   return (
-    <div className="w-full h-full flex justify-center items-baseline-last">
-      <div className="space-y-8 min-w-[350px] flex-1">
+    <div className="w-full h-full flex justify-center ">
+      <div className="space-y-4">
+        <p>Message Box </p>
+      </div>
+      <div className="space-y-8 min-w-[350px] self-baseline-last flex-1">
         <div>
           <AIInputWithSuggestions
             actions={CUSTOM_ACTIONS}
             placeholder="Enter text to process..."
+            getAiResponse={getAiResponse}
           />
         </div>
       </div>
