@@ -1,24 +1,24 @@
-import { NextResponse } from "next/server";
-import { db } from "@/db/db"; // your db instance
-import { conversations, pdfs } from "@/db/schema"; // your table/schema
-import { eq } from "drizzle-orm"; // adjust if using drizzle or prisma
+import { NextResponse, type NextRequest } from "next/server";
+import { db } from "@/db/db";
+import { conversations, pdfs } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
 // GET /api/conversations/:id
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Remove the await - params is already resolved
-    const { id } = await params;
+    const { id } = await params; // ✅ now correct
 
     const { sessionClaims } = await auth();
     if (!sessionClaims || !sessionClaims.dbUserId) {
-      throw new Error("User not authenticated");
+      return NextResponse.json(
+        { error: "User not authenticated" },
+        { status: 401 }
+      );
     }
-
-    console.log("123456");
 
     const convo = await db
       .select({ conversationName: conversations.title, pdfName: pdfs.title })

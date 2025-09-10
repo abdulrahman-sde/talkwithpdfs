@@ -6,6 +6,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Improved semantic-aware chunking
+// Type definition for chunking options
+export type ChunkOptions = {
+  maxSize?: number;
+  overlap?: number;
+  minChunkSize?: number;
+  respectSentenceBoundaries?: boolean;
+  respectParagraphBoundaries?: boolean;
+};
+
 export function chunkTextSemantic(
   text: string,
   options: ChunkOptions = {}
