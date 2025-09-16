@@ -11,11 +11,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useConversations } from "@/hooks/get-user-conversations";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { MessageSquarePlus, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export function NewConversationDialog({
   dialogOpen,

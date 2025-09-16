@@ -30,39 +30,6 @@ interface AIInputWithSuggestionsProps {
   getAiResponse: (input: string) => void;
 }
 
-const DEFAULT_ACTIONS: ActionItem[] = [
-  {
-    text: "Summary",
-    icon: Text,
-    colors: {
-      icon: "text-orange-600",
-      border: "border-orange-500",
-      bg: "bg-orange-100",
-    },
-    onClick: (text: string) => console.log(`Summarizing: ${text}`),
-  },
-  {
-    text: "Fix Spelling and Grammar",
-    icon: CheckCheck,
-    colors: {
-      icon: "text-emerald-600",
-      border: "border-emerald-500",
-      bg: "bg-emerald-100",
-    },
-    onClick: (text: string) => console.log(`Proofreading: ${text}`),
-  },
-  {
-    text: "Make shorter",
-    icon: ArrowDownWideNarrow,
-    colors: {
-      icon: "text-purple-600",
-      border: "border-purple-500",
-      bg: "bg-purple-100",
-    },
-    onClick: (text: string) => console.log(`Condensing: ${text}`),
-  },
-];
-
 export function AIInputWithSuggestions({
   id = "ai-input-with-actions",
   placeholder = "Enter your text here...",

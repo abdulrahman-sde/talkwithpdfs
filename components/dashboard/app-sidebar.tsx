@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import useSWR from "swr";
 
 import { NavMain } from "@/components/dashboard/nav-main";
 import {
