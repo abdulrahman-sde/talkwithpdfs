@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@clerk/themes/shadcn.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -89,7 +90,7 @@
   --sidebar-foreground: oklch(0.81 0.01 93.53);
   --sidebar-primary: oklch(0.33 0 0);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.62 0.14 39.15);
+  --sidebar-accent: oklch(32.775% 0.00459 39.061 / 0.897);
   --sidebar-accent-foreground: oklch(0.81 0.01 93.53);
   --sidebar-border: oklch(32.313% 0.00282 16.587);
   --sidebar-ring: oklch(0.77 0 0);
@@ -182,6 +183,9 @@ html {
   font-size: 14px;
   font-weight: 400;
   letter-spacing: 0.5px;
+}
+.message-box::-webkit-scrollbar {
+  display: none;
 }
 
 @layer base {

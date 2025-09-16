@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useAuth } from "@clerk/nextjs";
 
 const menuItems = [
   { name: "Features", href: "#features" },
@@ -16,6 +17,7 @@ const menuItems = [
 export const Navbar = () => {
   const [menuState, setMenuState] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const { isSignedIn, userId } = useAuth();
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -91,9 +93,15 @@ export const Navbar = () => {
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
                 <Button asChild size="sm" className="">
-                  <Link href="#">
-                    <span>Get Started</span>
-                  </Link>
+                  {isSignedIn ? (
+                    <Link href="/chat">
+                      <span>Start Chatting</span>
+                    </Link>
+                  ) : (
+                    <Link href="/sign-in">
+                      <span>Get Started</span>
+                    </Link>
+                  )}
                 </Button>
                 {/* <ThemeToggler /> */}
               </div>

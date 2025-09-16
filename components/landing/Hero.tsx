@@ -108,21 +108,22 @@ export default function Hero() {
                   preset="fade-in-blur"
                   speedSegment={0.3}
                   as="h1"
-                  className="mt-8 text-balance font-medium text-6xl md:text-7xl lg:mt-16 xl:text-[4.9rem]"
+                  className="mt-8 text-balance text-5xl md:text-6xl lg:mt-16 xl:text-[4.9rem]"
                 >
-                  From Static PDFs to Dynamic Learning.
+                  Turn PDFs to Smart Conversations.
                 </TextEffect>
+
                 <TextEffect
                   per="line"
                   preset="fade-in-blur"
                   speedSegment={0.3}
                   delay={0.5}
                   as="p"
-                  className="mx-auto mt-8 max-w-2xl text-balance text-lg"
+                  className="mx-auto mt-8 max-w-3xl text-balance text-lg"
                 >
-                  Transform any PDF into an interactive conversation. Ask
-                  questions, extract insights, and get instant answers from your
-                  documents with our advanced AI technology.
+                  Don’t just read documents—chat with them. Upload any PDF and
+                  instantly explore insights, ask questions, and uncover answers
+                  powered by AI.
                 </TextEffect>
 
                 <AnimatedGroup
@@ -189,7 +190,7 @@ export default function Hero() {
                 <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl  p-4 shadow-lg shadow-zinc-950/15 ring-1">
                   <Image
                     className="bg-background aspect-15/8 relative hidden rounded-2xl dark:block"
-                    src="/hero.jpg"
+                    src="/hero2.png"
                     alt="app screen"
                     width="2700"
                     height="1440"

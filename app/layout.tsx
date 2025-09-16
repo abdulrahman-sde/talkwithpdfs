@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
+import { dark } from "@clerk/themes";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,10 +16,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: "var(--primary)",
+          colorForeground: "var(--foreground)",
+        },
+      }}
+    >
       <html lang="en" suppressHydrationWarning>
         <head />
         <body>
+          <Toaster richColors />
+
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"

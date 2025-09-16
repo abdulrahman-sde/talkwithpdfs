@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useAutoResizeTextarea } from "@/hooks/use-auto-resize-textarea";
 import { Button } from "./button";
+import { ArrowUp } from "lucide-react";
 
 interface ActionItem {
   text: string;
@@ -65,9 +66,9 @@ const DEFAULT_ACTIONS: ActionItem[] = [
 export function AIInputWithSuggestions({
   id = "ai-input-with-actions",
   placeholder = "Enter your text here...",
-  minHeight = 64,
+  minHeight = 55,
   maxHeight = 200,
-  actions = DEFAULT_ACTIONS,
+  // actions = DEFAULT_ACTIONS,
   className,
   getAiResponse,
 }: AIInputWithSuggestionsProps) {
@@ -77,17 +78,17 @@ export function AIInputWithSuggestions({
     maxHeight,
   });
 
-  const handleActionClick = (action: ActionItem) => {
-    if (inputValue.trim()) {
-      action.onClick(inputValue);
-      setInputValue("");
-      adjustHeight(true);
-    }
-  };
+  // const handleActionClick = (action: ActionItem) => {
+  //   if (inputValue.trim()) {
+  //     action.onClick(inputValue);
+  //     setInputValue("");
+  //     adjustHeight(true);
+  //   }
+  // };
 
   return (
-    <div className={cn("w-full py-4", className)}>
-      <div className="relative max-w-xl w-full mx-auto">
+    <div className={cn("w-full py-4 px-4 sm:px-0 ", className)}>
+      <div className="relative w-full max-w-[360px] sm:max-w-2xl mx-auto">
         <div className="relative border border-black/10 dark:border-white/10 focus-within:border-black/20 dark:focus-within:border-white/20 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03]">
           <div className="flex flex-col">
             <div
@@ -99,8 +100,8 @@ export function AIInputWithSuggestions({
                 id={id}
                 placeholder={placeholder}
                 className={cn(
-                  "max-w-xl w-full rounded-2xl pr-10 pt-3 pb-3 placeholder:text-black/70 dark:placeholder:text-white/70 border-none focus:ring text-black dark:text-white resize-none text-wrap bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 leading-[1.2]",
-                  `min-h-[${minHeight}px]`
+                  "w-full rounded-2xl pr-10 pt-4.5 ps-3 pb-3 placeholder:text-black/70 dark:placeholder:text-white/70 border-none focus:ring text-black focus:ps-5 dark:text-white resize-none text-wrap bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 leading-[1.2] focus:placeholder:opacity-0",
+                  `min-h-[${minHeight}px]  transition-all duration-300 placeholder:ps-2`
                 )}
                 value={inputValue}
                 onChange={(e) => {
@@ -110,41 +111,21 @@ export function AIInputWithSuggestions({
               />
 
               <Button
-                className="self-center mr-2 cursor-pointer"
+                className={`self-center mr-2 cursor-pointer ${
+                  inputValue.length === 0 && "bg-gray-500"
+                } rounded-full py-5 px-1`}
+                disabled={inputValue.length === 0 ? true : false}
                 onClick={() => {
                   getAiResponse(inputValue);
+                  setInputValue("");
+                  adjustHeight(true);
                 }}
               >
-                Send
+                <ArrowUp className="w-[10px] h-[10px]" />
               </Button>
             </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-wrap gap-1.5 mt-2 max-w-xl mx-auto justify-start px-4">
-        <p className="text-sm mt-0.5">Quick Actions - </p>
-        {actions.map(({ text, icon: Icon, colors, onClick }) => (
-          <button
-            type="button"
-            key={text}
-            className={cn(
-              "px-3 py-1.5 text-xs font-medium rounded-full",
-              "border transition-all duration-200",
-              "border-black/10 dark:border-white/10 bg-white dark:bg-gray-900 hover:bg-black/5 dark:hover:bg-white/5",
-              "flex-shrink-0"
-            )}
-            onClick={() =>
-              handleActionClick({ text, icon: Icon, colors, onClick })
-            }
-          >
-            <div className="flex items-center gap-1.5">
-              <Icon className={cn("h-4 w-4", colors.icon)} />
-              <span className="text-black/70 dark:text-white/70 whitespace-nowrap">
-                {text}
-              </span>
-            </div>
-          </button>
-        ))}
       </div>
     </div>
   );

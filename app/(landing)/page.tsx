@@ -4,7 +4,6 @@ import Hero from "@/components/landing/Hero";
 import Pricing from "@/components/landing/Pricing";
 import Footer from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/navbar";
-import { auth } from "@clerk/nextjs/server";
 export default async function Home() {
   return (
     <div className="bg-background">

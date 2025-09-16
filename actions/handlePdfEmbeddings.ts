@@ -1,11 +1,12 @@
 "use server";
 
 import { db } from "@/db/db";
-import { conversations, messages } from "@/db/schema";
+import { conversations, messages, users } from "@/db/schema";
 import storePdfToDb from "@/lib/cloudinary/cloudinary";
 import { inngest } from "@/lib/inngest/inngest";
 import { validatePdf } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 
 export default async function handlePdfEmbeddings(file: File) {
   if (!file) {
@@ -21,12 +22,26 @@ export default async function handlePdfEmbeddings(file: File) {
       message: validation.error,
     };
   }
-  const { sessionClaims } = await auth();
-  if (!sessionClaims || !sessionClaims.dbUserId) {
-    throw new Error("User not authenticated");
+  const { userId: clerkId } = await auth();
+  console.log("request made");
+
+  if (!clerkId) {
+    return Response.json({ error: "User not authenticated" }, { status: 401 });
   }
 
-  const userId = String(sessionClaims.dbUserId);
+  const dbUserResult = await db
+    .select({ userId: users.id })
+    .from(users)
+    .where(eq(users.clerkId, clerkId));
+
+  if (!dbUserResult.length) {
+    return Response.json(
+      { error: "User not found in database" },
+      { status: 404 }
+    );
+  }
+
+  const userId = dbUserResult[0].userId;
 
   try {
     /* 

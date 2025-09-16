@@ -2,7 +2,6 @@ import { verifyWebhook, WebhookEvent } from "@clerk/nextjs/webhooks";
 import { db } from "@/db/db";
 import { users } from "@/db/schema";
 import { NextRequest } from "next/server";
-import { clerkClient } from "@clerk/nextjs/server";
 
 export async function POST(req: NextRequest) {
   const evt: WebhookEvent = await verifyWebhook(req);
@@ -29,14 +28,6 @@ export async function POST(req: NextRequest) {
         .insert(users)
         .values(userData)
         .returning();
-
-      // ✅ Get clerk client instance and update user with DB user ID
-      const clerk = await clerkClient();
-      await clerk.users.updateUser(id, {
-        publicMetadata: {
-          dbUserId: insertedUser.id,
-        },
-      });
 
       return new Response("✅ User created successfully", { status: 200 });
     } catch (err) {

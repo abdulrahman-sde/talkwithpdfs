@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import useSWR from "swr";
 
 import { NavMain } from "@/components/dashboard/nav-main";
 import {
@@ -12,105 +13,15 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { UserButton } from "@clerk/nextjs";
+import { toast } from "sonner";
+// import { useConversation } from "@/context/conversationContext";
+import { useConversations } from "@/hooks/get-user-conversations";
 
-// This is sample data.
-// const data = {
-//   navMain: [
-//     {
-//       title: "Pdf 1",
-//       url: "#",
-//       isActive: true,
-//       items: [
-//         {
-//           title: "History",
-//           url: "#",
-//         },
-//         {
-//           title: "Starred",
-//           url: "#",
-//         },
-//         {
-//           title: "Settings",
-//           url: "#",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Pdf 2",
-//       url: "#",
-//       items: [
-//         {
-//           title: "Genesis",
-//           url: "#",
-//         },
-//         {
-//           title: "Explorer",
-//           url: "#",
-//         },
-//         {
-//           title: "Quantum",
-//           url: "#",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Pdf 3",
-//       url: "#",
-//       items: [
-//         {
-//           title: "Introduction",
-//           url: "#",
-//         },
-//         {
-//           title: "Get Started",
-//           url: "#",
-//         },
-//         {
-//           title: "Tutorials",
-//           url: "#",
-//         },
-//         {
-//           title: "Changelog",
-//           url: "#",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Pdf 4",
-//       url: "#",
-//       items: [
-//         {
-//           title: "General",
-//           url: "#",
-//         },
-//         {
-//           title: "Team",
-//           url: "#",
-//         },
-//         {
-//           title: "Billing",
-//           url: "#",
-//         },
-//         {
-//           title: "Limits",
-//           url: "#",
-//         },
-//       ],
-//     },
-//   ],
-// };
+type AppSidebarProps = React.ComponentProps<typeof Sidebar>;
 
-type NavItem = {
-  title: string;
-  url: string;
-  items?: NavItem[];
-};
-
-type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  navMain: NavItem[];
-};
-
-export function AppSidebar({ navMain, ...props }: AppSidebarProps) {
+export function AppSidebar({ ...props }: AppSidebarProps) {
+  const { data: conversations, isLoading } = useConversations();
+  console.log(conversations);
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="flex gap-2 flex-row py-4">
@@ -118,7 +29,7 @@ export function AppSidebar({ navMain, ...props }: AppSidebarProps) {
         <p>ChatPdf</p>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
+        <NavMain items={conversations ?? []} isLoading={isLoading} />
       </SidebarContent>
       <SidebarFooter className="p-4">
         <UserButton showName={true} />
