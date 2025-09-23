@@ -28,13 +28,13 @@ export default function AIInputWithSuggestionsDemo() {
     addMessage(userMessage);
     setLoading(true);
 
-    // Add placeholder AI message for streaming
+    // Add placeholder AI message
     const aiMessageId = (Date.now() + 1).toString();
     const aiMessage = {
       id: aiMessageId,
       conversationId: convoId,
       sender: "ai" as const,
-      content: "",
+      content: "Thinking...",
       createdAt: new Date(),
     };
 
@@ -60,36 +60,19 @@ export default function AIInputWithSuggestionsDemo() {
       if (!res.ok) {
         throw new Error("Failed to get AI response");
       }
+
+      const result = await res.json();
       setLoading(false);
-      const reader = res.body?.getReader();
-      const decoder = new TextDecoder();
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          const lines = chunk.split("\n");
-
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.chunk) {
-                  // Update the AI message content with the accumulated text
-                  updateMessage(aiMessageId, data.fullText);
-                }
-              } catch (e) {
-                console.error("Error parsing stream data:", e);
-              }
-            }
-          }
-        }
+      if (result.success && result.text) {
+        // Update the AI message with the response
+        updateMessage(aiMessageId, result.text);
+      } else {
+        throw new Error("Invalid response format");
       }
     } catch (error) {
-      console.error("Error during streaming:", error);
-
+      console.error("Error during chat:", error);
+      setLoading(false);
       // Update the AI message with an error
       updateMessage(
         aiMessageId,

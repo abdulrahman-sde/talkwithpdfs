@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { BlurFade } from "../magicui/blur-fade";
 import { UserButton } from "@clerk/nextjs";
-import AIResponseLoader from "../loaders/text-shimmer";
+// import AIResponseLoader from "../loaders/text-shimmer";
 
 type Messages = {
   id: string;
@@ -109,11 +109,11 @@ export function MessageBox({
                 </div>
               </div>
             ))}
-            {loading && (
+            {/* {loading && (
               <div className="mt-[-52px]">
                 <AIResponseLoader />
               </div>
-            )}
+            )} */}
             <div ref={messagesEndRef} />
           </div>
         )}
