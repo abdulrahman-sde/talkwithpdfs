@@ -4,9 +4,6 @@ import { conversations, messages, pdfs, users } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
-// Ensure Node.js runtime for better compatibility
-export const runtime = "nodejs";
-
 // GET /api/conversations/:id
 export async function GET(
   request: NextRequest,
