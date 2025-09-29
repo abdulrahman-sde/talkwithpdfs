@@ -3,6 +3,7 @@ import { pdfChunks } from "@/db/schema";
 import { embedMany } from "ai";
 // import { google } from "@ai-sdk/google";
 import pdf from "pdf-parse";
+import { CharacterTextSplitter } from "@langchain/textsplitters";
 import { chunkPdfText } from "@/lib/utils"; // Using the improved chunking
 import { inngest } from "./inngest";
 import { openai } from "@ai-sdk/openai";
@@ -48,11 +49,6 @@ async function generateEmbeddingsInBatches(
       });
 
       allEmbeddings.push(...embeddings);
-
-      // Small delay between batches to avoid rate limiting
-      if (i < batches.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
     } catch (error) {
       console.error(`Error processing batch ${i + 1}:`, error);
       throw new Error(`Failed to process embedding batch ${i + 1}: ${error}`);
@@ -105,9 +101,12 @@ export const createEmbeddingsFn = inngest.createFunction(
       if (!extractedText || extractedText.trim().length === 0) {
         throw new Error("No text content found in PDF");
       }
-
+      const textSplitter = new CharacterTextSplitter({
+        chunkSize: 400,
+        chunkOverlap: 75,
+      });
       // Using improved chunking function
-      const chunks = chunkPdfText(extractedText);
+      const chunks = await textSplitter.splitText(extractedText);
 
       console.log(`Created ${chunks.length} text chunks`);
 

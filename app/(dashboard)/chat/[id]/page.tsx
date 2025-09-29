@@ -6,47 +6,6 @@ import { MessageBox } from "@/components/dashboard/message-box";
 import { useParams } from "next/navigation";
 import { useConversation } from "@/hooks/get-single-conversation";
 
-// const CUSTOM_ACTIONS = [
-//   {
-//     text: "Summarize",
-//     icon: Text,
-//     colors: {
-//       icon: "text-blue-600",
-//       border: "border-blue-500",
-//       bg: "bg-blue-100",
-//     },
-//     onClick: (text: string) => alert(`Summarizing: ${text}`),
-//   },
-//   {
-//     text: "Proofread",
-//     icon: CheckCheck,
-//     colors: {
-//       icon: "text-green-600",
-//       border: "border-green-500",
-//       bg: "bg-green-100",
-//     },
-//     onClick: (text: string) => alert(`Proofreading: ${text}`),
-//   },
-//   {
-//     text: "Condense",
-//     icon: ArrowDownWideNarrow,
-//     colors: {
-//       icon: "text-purple-600",
-//       border: "border-purple-500",
-//       bg: "bg-purple-100",
-//     },
-//     onClick: (text: string) => alert(`Condensing: ${text}`),
-//   },
-// ];
-
-type Messages = {
-  id: string;
-  conversationId: string;
-  sender: "user" | "ai";
-  content: string;
-  createdAt: Date;
-}[];
-
 export default function AIInputWithSuggestionsDemo() {
   const params = useParams();
   const convoId = params.id as string | undefined;
@@ -56,10 +15,9 @@ export default function AIInputWithSuggestionsDemo() {
     isError,
     isProcessing,
     setIsProcessing,
-    mutate,
-    addOptimisticMessage,
-    updateOptimisticMessage,
-    clearOptimisticMessages,
+    addMessage,
+    updateMessage,
+    refetchConversation,
   } = useConversation(convoId);
 
   console.log(messages);
@@ -69,26 +27,39 @@ export default function AIInputWithSuggestionsDemo() {
 
     setIsProcessing(true);
 
-    // Add user message optimistically
-    const userMessageId = addOptimisticMessage({
+    // Add user message immediately
+    const userMessage = {
+      id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       conversationId: convoId,
-      sender: "user",
+      sender: "user" as const,
       content: input,
       createdAt: new Date(),
-    });
+    };
+    addMessage(userMessage);
 
-    // Add placeholder AI message optimistically
-    const aiMessageId = addOptimisticMessage({
+    // Add placeholder AI message
+    const aiMessageId = `ai-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+    const aiMessage = {
+      id: aiMessageId,
       conversationId: convoId,
-      sender: "ai",
-      content: "",
+      sender: "ai" as const,
+      content: "Analyzing your question and conversation context...",
       createdAt: new Date(),
-    });
+    };
+    addMessage(aiMessage);
 
     try {
       const chunks = await getRelevantChunks(convoId, input);
       const contentArray = chunks.map((chunk) => chunk.content);
       const vectorContext = contentArray.join(" ");
+
+      // Update AI message to show we're generating response
+      updateMessage(
+        aiMessageId,
+        "Generating response based on relevant document sections..."
+      );
 
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -124,14 +95,11 @@ export default function AIInputWithSuggestionsDemo() {
                 const data = JSON.parse(line.slice(6));
                 if (data.chunk) {
                   // Update the AI message content with the accumulated text
-                  updateOptimisticMessage(aiMessageId, data.fullText);
+                  updateMessage(aiMessageId, data.fullText);
                 }
                 if (data.done) {
-                  // Streaming complete, refresh data and clear optimistic messages
-                  mutate(`/api/conversations/${convoId}`);
-                  setTimeout(() => {
-                    clearOptimisticMessages();
-                  }, 500);
+                  // Streaming complete, stop processing
+                  setIsProcessing(false);
                 }
               } catch (e) {
                 console.error("Error parsing stream data:", e);
@@ -143,11 +111,10 @@ export default function AIInputWithSuggestionsDemo() {
     } catch (error) {
       console.error("Error:", error);
       // Update AI message with error
-      updateOptimisticMessage(
+      updateMessage(
         aiMessageId,
         "Sorry, I encountered an error processing your request."
       );
-    } finally {
       setIsProcessing(false);
     }
   };

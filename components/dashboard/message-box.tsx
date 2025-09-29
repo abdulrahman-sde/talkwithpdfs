@@ -103,17 +103,10 @@ export function MessageBox({
                       {message.content.trim()}
                     </p>
                   </div>
-                  {/* <span className="text-xs text-muted-foreground px-2">
-                    {formatTime(message.createdAt)}
-                  </span> */}
                 </div>
               </div>
             ))}
-            {/* {loading && (
-              <div className="mt-[-52px]">
-                <AIResponseLoader />
-              </div>
-            )} */}
+
             <div ref={messagesEndRef} />
           </div>
         )}
